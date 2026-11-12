@@ -22,7 +22,7 @@ A simple Bash script to generate a comprehensive `Brewfile` for your macOS syste
 ## Usage
 
 ```sh
-./generate_brewfile.sh [-o|--output <path>] [-h|--help]
+./clean_brewfile_generator.sh [-o|--output <path>] [-h|--help]
 ```
 
 ### Options
@@ -33,13 +33,13 @@ A simple Bash script to generate a comprehensive `Brewfile` for your macOS syste
 Generate a Brewfile in the current directory:
 
 ```sh
-./generate_brewfile.sh
+./clean_brewfile_generator.sh
 ```
 
 Generate a Brewfile at a custom location:
 
 ```sh
-./generate_brewfile.sh --output /path/to/MyBrewfile
+./clean_brewfile_generator.sh --output /path/to/MyBrewfile
 ```
 
 ## Example Output
@@ -50,13 +50,15 @@ An example of a generated Brewfile can be found in the `brewfile_example` folder
 - If a Brewfile already exists at the output location, it is automatically backed up by renaming it with a timestamp suffix.
 - **Backup file name format:** `Brewfile.<yymmdd-hhmmss>` (e.g., `Brewfile.250512-125456` for a backup made on May 12, 2025 at 12:54:56)
 - Dumps taps, formulae, casks, Mac App Store apps, and VS Code extensions into the Brewfile
+- Skips the official Homebrew taps that were retired (`homebrew/core`, `homebrew/cask`, `homebrew/bundle`, `homebrew/services`, `homebrew/command-not-found`, `homebrew/test-bot`), as tapping them fails
+- If `brew bundle dump --mas` fails (for example `mas` cannot find `jq` on macOS older than 15), the App Store apps are listed with `mas list` instead
 - Cleans up temporary files automatically
 
 ## License
 MIT
 
 ## Version
-1.0.0
+2.0.0
 
 ## Author
 David Terana
