@@ -102,7 +102,8 @@ printf "# Generated %s\n" "$(date)" > "$BREWFILE_PATH"
 log_info "Dumping Taps..."
 writeHeader "Taps"
 brew bundle dump --taps --file="$TMP_FOLDER/taps" || { log_info "brew bundle dump --taps failed"; exit 1; }
-cat "$TMP_FOLDER/taps" >> "$BREWFILE_PATH"
+# Skip official taps Homebrew retired: they are empty now and tapping them fails
+{ grep -v -E '^tap "homebrew/(core|cask|bundle|services|command-not-found|test-bot)"' "$TMP_FOLDER/taps" || true; } >> "$BREWFILE_PATH"
 
 # Dump Homebrew packages
 log_info "Dumping Brew packages..."
