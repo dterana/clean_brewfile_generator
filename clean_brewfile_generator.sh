@@ -107,21 +107,26 @@ cat "$TMP_FOLDER/taps" >> "$BREWFILE_PATH"
 # Dump Homebrew packages
 log_info "Dumping Brew packages..."
 writeHeader "Brew"
-brew bundle dump --brew --describe --file="$TMP_FOLDER/brew" || { log_info "brew bundle dump --brew failed"; exit 1; }
+brew bundle dump --brew --file="$TMP_FOLDER/brew" || { log_info "brew bundle dump --brew failed"; exit 1; }
 awk '/^#/ {comment=$0; next} {print $0, comment; comment=""}' "$TMP_FOLDER/brew" >> "$BREWFILE_PATH"
 
 # Dump Homebrew Casks
 log_info "Dumping Casks..."
 writeHeader "Casks"
-brew bundle dump --casks --describe --file="$TMP_FOLDER/casks" || { log_info "brew bundle dump --casks failed"; exit 1; }
+brew bundle dump --casks --file="$TMP_FOLDER/casks" || { log_info "brew bundle dump --casks failed"; exit 1; }
 awk '/^#/ {comment=$0; next} {print $0, comment; comment=""}' "$TMP_FOLDER/casks" >> "$BREWFILE_PATH"
 
 # Dump Mac App Store apps -- Require mas
 log_info "Dumping Mac App Store apps..."
 writeHeader "Mac Application Store"
-if ! command -v mas &> /dev/null; then
-  brew bundle dump --mas --file="$TMP_FOLDER/mas" || { log_info "brew bundle dump --mas failed"; exit 1; }
-  cat "$TMP_FOLDER/mas" >> "$BREWFILE_PATH"
+if command -v mas &> /dev/null; then
+  if brew bundle dump --mas --file="$TMP_FOLDER/mas" 2>/dev/null; then
+    cat "$TMP_FOLDER/mas" >> "$BREWFILE_PATH"
+  else
+    # brew may run mas with a restricted PATH (e.g. mas needs jq); build the entries from mas directly
+    log_info "brew bundle dump --mas failed; falling back to mas list"
+    mas list | awk '{id=$1; $1=""; sub(/^ +/, ""); sub(/ +\([^)]*\)$/, ""); printf "mas \"%s\", id: %s\n", $0, id}' >> "$BREWFILE_PATH"
+  fi
 fi
 
 # Dump VS Code Extensions -- Require VS Code
